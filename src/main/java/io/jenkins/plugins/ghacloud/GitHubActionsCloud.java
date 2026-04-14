@@ -84,7 +84,32 @@ public class GitHubActionsCloud extends Cloud {
         Label label = state.getLabel();
         List<NodeProvisioner.PlannedNode> plannedNodes = new ArrayList<>();
 
-        for (int i = 0; i < excessWorkload; i++) {
+        // Count already-provisioned agents from this cloud that haven't connected yet
+        int pendingCount = 0;
+        for (Node node : Jenkins.get().getNodes()) {
+            if (node instanceof GitHubActionsSlave) {
+                GitHubActionsSlave slave = (GitHubActionsSlave) node;
+                if (name.equals(slave.getCloudName())) {
+                    hudson.model.Computer computer = slave.toComputer();
+                    if (computer == null || computer.isOffline()) {
+                        pendingCount++;
+                    }
+                }
+            }
+        }
+
+        int toProvision = Math.max(0, excessWorkload - pendingCount);
+        if (toProvision == 0) {
+            LOGGER.log(Level.INFO,
+                    "Skipping provisioning: {0} agents already pending for cloud {1}",
+                    new Object[]{pendingCount, name});
+            return plannedNodes;
+        }
+
+        // Only provision one agent at a time to avoid stampede
+        toProvision = 1;
+
+        for (int i = 0; i < toProvision; i++) {
             GitHubActionsAgentTemplate template = templates.stream()
                     .filter(t -> t.matches(label))
                     .findFirst()
