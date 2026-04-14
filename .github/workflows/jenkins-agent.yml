@@ -19,6 +19,9 @@ jobs:
     timeout-minutes: 360
 
     steps:
+      - name: Mask secret
+        run: echo "::add-mask::${{ inputs.agent_secret }}"
+
       - name: Download Jenkins agent JAR
         run: |
           curl -sSfL --retry 3 --retry-delay 5 -o agent.jar \
@@ -26,10 +29,12 @@ jobs:
             "${{ inputs.jenkins_url }}jnlpJars/agent.jar"
 
       - name: Connect to Jenkins
+        env:
+          AGENT_SECRET: ${{ inputs.agent_secret }}
         run: |
           java -jar agent.jar \
             -url "${{ inputs.jenkins_url }}" \
-            -secret "${{ inputs.agent_secret }}" \
+            -secret "$AGENT_SECRET" \
             -name "${{ inputs.agent_name }}" \
             -workDir "/home/runner/agent" \
             -webSocket \
