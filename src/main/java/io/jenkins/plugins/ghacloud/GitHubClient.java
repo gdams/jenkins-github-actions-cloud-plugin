@@ -61,7 +61,7 @@ public class GitHubClient {
             }
 
             int status = conn.getResponseCode();
-            if (status != 204) {
+            if (status < 200 || status >= 300) {
                 InputStream errStream = conn.getErrorStream();
                 String error = errStream != null
                         ? new String(errStream.readAllBytes(), StandardCharsets.UTF_8)
@@ -69,7 +69,7 @@ public class GitHubClient {
                 throw new IOException("GitHub API returned HTTP " + status
                         + " for workflow dispatch: " + error);
             }
-            LOGGER.log(Level.INFO, "Workflow dispatch successful (HTTP 204)");
+            LOGGER.log(Level.INFO, "Workflow dispatch successful (HTTP {0})", status);
         } finally {
             conn.disconnect();
         }
