@@ -41,4 +41,5 @@ jobs:
             -url "${{ inputs.jenkins_url }}" \
             -secret "${{ inputs.agent_secret }}" \
             -name "${{ inputs.agent_name }}" \
-            -workDir "/home/runner/agent"
+            -workDir "/home/runner/agent" \
+            -webSocket
