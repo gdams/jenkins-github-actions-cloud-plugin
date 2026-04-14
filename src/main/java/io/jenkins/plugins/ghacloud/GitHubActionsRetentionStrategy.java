@@ -28,25 +28,41 @@ public class GitHubActionsRetentionStrategy extends RetentionStrategy<AbstractCl
 
     @Override
     public long check(AbstractCloudComputer<?> c) {
-        if (c.isIdle()) {
+        // Don't terminate agents that haven't connected yet — they're still starting up
+        if (c.isOffline() && c.getConnectTime() == 0) {
+            // Check if we've been waiting too long for connection (10 min max)
+            long createdMs = System.currentTimeMillis() - c.getIdleStartMilliseconds();
+            if (createdMs > 10L * 60 * 1000) {
+                LOGGER.log(Level.INFO, "Agent {0} never connected after 10 minutes, terminating",
+                        c.getName());
+                terminateAgent(c);
+            }
+            return 1;
+        }
+
+        if (c.isIdle() && c.isOnline()) {
             long idleMs = System.currentTimeMillis() - c.getIdleStartMilliseconds();
             if (idleMs > (long) idleMinutes * 60 * 1000) {
                 LOGGER.log(Level.INFO, "Agent {0} has been idle for {1} minutes, terminating",
                         new Object[]{c.getName(), idleMinutes});
-                try {
-                    AbstractCloudSlave node = (AbstractCloudSlave) c.getNode();
-                    if (node != null) {
-                        node.terminate();
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    LOGGER.log(Level.WARNING, "Interrupted while terminating agent " + c.getName(), e);
-                } catch (IOException e) {
-                    LOGGER.log(Level.WARNING, "Failed to terminate agent " + c.getName(), e);
-                }
+                terminateAgent(c);
             }
         }
         return 1; // re-check every minute
+    }
+
+    private void terminateAgent(AbstractCloudComputer<?> c) {
+        try {
+            AbstractCloudSlave node = (AbstractCloudSlave) c.getNode();
+            if (node != null) {
+                node.terminate();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.log(Level.WARNING, "Interrupted while terminating agent " + c.getName(), e);
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Failed to terminate agent " + c.getName(), e);
+        }
     }
 
     @Override
