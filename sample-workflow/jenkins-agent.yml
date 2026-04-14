@@ -1,0 +1,44 @@
+# ---------------------------------------------------------------
+# Sample GitHub Actions workflow for Jenkins agent provisioning
+# ---------------------------------------------------------------
+# Place this file in your GitHub repository at:
+#   .github/workflows/jenkins-agent.yml
+#
+# The GitHub Actions Cloud plugin triggers this workflow via
+# workflow_dispatch, passing the Jenkins URL, agent name, and
+# agent secret as inputs.
+# ---------------------------------------------------------------
+
+name: Jenkins Agent
+
+on:
+  workflow_dispatch:
+    inputs:
+      jenkins_url:
+        description: 'Jenkins server URL (with trailing slash)'
+        required: true
+      agent_name:
+        description: 'Jenkins agent name'
+        required: true
+      agent_secret:
+        description: 'JNLP secret for this agent'
+        required: true
+
+jobs:
+  agent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360   # max 6 hours, adjust as needed
+
+    steps:
+      - name: Download Jenkins agent JAR
+        run: |
+          curl -sSfL -o agent.jar \
+            "${{ inputs.jenkins_url }}jnlpJars/agent.jar"
+
+      - name: Connect to Jenkins
+        run: |
+          java -jar agent.jar \
+            -url "${{ inputs.jenkins_url }}" \
+            -secret "${{ inputs.agent_secret }}" \
+            -name "${{ inputs.agent_name }}" \
+            -workDir "/home/runner/agent"
