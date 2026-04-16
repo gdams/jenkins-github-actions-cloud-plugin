@@ -1,12 +1,10 @@
 package io.jenkins.plugins.ghacloud;
 
 import hudson.model.Label;
-import hudson.model.labels.LabelAtom;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;

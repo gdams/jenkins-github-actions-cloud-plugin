@@ -10,7 +10,7 @@
     </f:entry>
 
     <f:entry title="${%Number of Executors}" field="numExecutors">
-        <f:textbox default="1" />
+        <f:number default="1" clazz="required positive-number" />
     </f:entry>
 
     <f:entry title="${%Git Ref}" field="gitRef">
@@ -18,7 +18,7 @@
     </f:entry>
 
     <f:entry title="${%Idle Termination Minutes}" field="idleMinutes">
-        <f:textbox default="5" />
+        <f:number default="5" clazz="required positive-number" />
     </f:entry>
 
     <f:entry title="${%Workflow File Name}" field="workflowFileName">

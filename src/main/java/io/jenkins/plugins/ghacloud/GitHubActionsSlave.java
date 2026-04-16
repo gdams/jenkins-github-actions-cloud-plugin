@@ -11,7 +11,6 @@ import hudson.slaves.JNLPLauncher;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

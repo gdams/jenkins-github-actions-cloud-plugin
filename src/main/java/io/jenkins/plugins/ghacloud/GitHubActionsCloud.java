@@ -138,7 +138,7 @@ public class GitHubActionsCloud extends Cloud {
 
     private GitHubActionsSlave provisionAgent(String agentName, GitHubActionsAgentTemplate template)
             throws Descriptor.FormException, IOException {
-        LOGGER.log(Level.INFO, "Provisioning GitHub Actions agent: {0}", agentName);
+        LOGGER.log(Level.FINE, "Provisioning GitHub Actions agent: {0}", agentName);
 
         GitHubActionsSlave slave = new GitHubActionsSlave(
                 agentName,

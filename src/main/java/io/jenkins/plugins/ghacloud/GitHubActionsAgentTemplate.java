@@ -12,9 +12,9 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import java.util.Set;
 
-import hudson.model.AbstractDescribableImpl;
+import hudson.model.Describable;
 
-public class GitHubActionsAgentTemplate extends AbstractDescribableImpl<GitHubActionsAgentTemplate> {
+public class GitHubActionsAgentTemplate implements Describable<GitHubActionsAgentTemplate> {
 
     private final String labelString;
     private final String remoteFs;
@@ -83,20 +83,6 @@ public class GitHubActionsAgentTemplate extends AbstractDescribableImpl<GitHubAc
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             if (value == null || value.trim().isEmpty()) {
                 return FormValidation.warning("No labels set — this template will match any label request");
-            }
-            return FormValidation.ok();
-        }
-
-        @RequirePOST
-        public FormValidation doCheckNumExecutors(@QueryParameter String value) {
-            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-            try {
-                int n = Integer.parseInt(value);
-                if (n < 1) {
-                    return FormValidation.error("Must be at least 1");
-                }
-            } catch (NumberFormatException e) {
-                return FormValidation.error("Must be a number");
             }
             return FormValidation.ok();
         }
