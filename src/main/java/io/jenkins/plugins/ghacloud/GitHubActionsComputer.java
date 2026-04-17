@@ -2,9 +2,9 @@ package io.jenkins.plugins.ghacloud;
 
 import hudson.slaves.AbstractCloudComputer;
 
-public class GitHubActionsComputer extends AbstractCloudComputer<GitHubActionsSlave> {
+public class GitHubActionsComputer extends AbstractCloudComputer<GitHubActionsAgent> {
 
-    public GitHubActionsComputer(GitHubActionsSlave slave) {
-        super(slave);
+    public GitHubActionsComputer(GitHubActionsAgent agent) {
+        super(agent);
     }
 }

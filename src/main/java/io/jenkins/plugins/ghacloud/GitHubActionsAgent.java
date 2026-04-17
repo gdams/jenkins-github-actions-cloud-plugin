@@ -14,14 +14,14 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GitHubActionsSlave extends AbstractCloudSlave {
+public class GitHubActionsAgent extends AbstractCloudSlave {
 
-    private static final Logger LOGGER = Logger.getLogger(GitHubActionsSlave.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(GitHubActionsAgent.class.getName());
 
     private final String cloudName;
 
     @DataBoundConstructor
-    public GitHubActionsSlave(String name, String remoteFs, String labelString,
+    public GitHubActionsAgent(String name, String remoteFs, String labelString,
                               int numExecutors, int idleMinutes, String cloudName)
             throws Descriptor.FormException, IOException {
         super(name, remoteFs, new JNLPLauncher());

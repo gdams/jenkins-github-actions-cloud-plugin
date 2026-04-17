@@ -89,11 +89,11 @@ public class GitHubActionsCloud extends Cloud {
         int pendingCount = 0;
         int totalCount = 0;
         for (Node node : Jenkins.get().getNodes()) {
-            if (node instanceof GitHubActionsSlave) {
-                GitHubActionsSlave slave = (GitHubActionsSlave) node;
-                if (name.equals(slave.getCloudName())) {
+            if (node instanceof GitHubActionsAgent) {
+                GitHubActionsAgent agent = (GitHubActionsAgent) node;
+                if (name.equals(agent.getCloudName())) {
                     totalCount++;
-                    hudson.model.Computer computer = slave.toComputer();
+                    hudson.model.Computer computer = agent.toComputer();
                     if (computer == null || computer.isOffline()) {
                         pendingCount++;
                     }
@@ -129,6 +129,21 @@ public class GitHubActionsCloud extends Cloud {
                 break;
             }
 
+            // Check per-template agent cap
+            if (template.getAgentCap() > 0) {
+                long templateAgentCount = Jenkins.get().getNodes().stream()
+                        .filter(n -> n instanceof GitHubActionsAgent)
+                        .map(n -> (GitHubActionsAgent) n)
+                        .filter(a -> name.equals(a.getCloudName()) && template.matches(a))
+                        .count();
+                if (templateAgentCount >= template.getAgentCap()) {
+                    LOGGER.log(Level.FINE,
+                            "Template agent cap ({0}) reached for template with labels ''{1}'', skipping",
+                            new Object[]{template.getAgentCap(), template.getLabelString()});
+                    break;
+                }
+            }
+
             String agentName = name + "-" + UUID.randomUUID().toString().substring(0, 8);
 
             CompletableFuture<Node> future = CompletableFuture.supplyAsync(() -> {
@@ -145,11 +160,11 @@ public class GitHubActionsCloud extends Cloud {
         return plannedNodes;
     }
 
-    private GitHubActionsSlave provisionAgent(String agentName, GitHubActionsAgentTemplate template)
+    private GitHubActionsAgent provisionAgent(String agentName, GitHubActionsAgentTemplate template)
             throws Descriptor.FormException, IOException {
         LOGGER.log(Level.FINE, "Provisioning GitHub Actions agent: {0}", agentName);
 
-        GitHubActionsSlave slave = new GitHubActionsSlave(
+        GitHubActionsAgent agent = new GitHubActionsAgent(
                 agentName,
                 template.getRemoteFs(),
                 template.getLabelString(),
@@ -159,7 +174,7 @@ public class GitHubActionsCloud extends Cloud {
         );
 
         Jenkins jenkins = Jenkins.get();
-        jenkins.addNode(slave);
+        jenkins.addNode(agent);
 
         // Retrieve the JNLP secret for inbound connection
         hudson.model.Computer computer = jenkins.getComputer(agentName);
@@ -187,7 +202,7 @@ public class GitHubActionsCloud extends Cloud {
         LOGGER.log(Level.FINE, "Triggered GitHub Actions workflow {0} for agent: {1}",
                 new Object[]{template.getWorkflowFileName(), agentName});
 
-        return slave;
+        return agent;
     }
 
     String resolveGitHubToken() {

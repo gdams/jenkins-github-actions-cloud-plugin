@@ -22,17 +22,19 @@ public class GitHubActionsAgentTemplate implements Describable<GitHubActionsAgen
     private final String gitRef;
     private final int idleMinutes;
     private final String workflowFileName;
+    private final int agentCap;
 
     @DataBoundConstructor
     public GitHubActionsAgentTemplate(String labelString, String remoteFs,
                                       int numExecutors, String gitRef, int idleMinutes,
-                                      String workflowFileName) {
+                                      String workflowFileName, int agentCap) {
         this.labelString = labelString;
         this.remoteFs = (remoteFs != null && !remoteFs.isEmpty()) ? remoteFs : "/home/runner/agent";
         this.numExecutors = numExecutors > 0 ? numExecutors : 1;
         this.gitRef = (gitRef != null && !gitRef.isEmpty()) ? gitRef : "main";
         this.idleMinutes = idleMinutes > 0 ? idleMinutes : 5;
         this.workflowFileName = workflowFileName;
+        this.agentCap = agentCap;
     }
 
     public String getLabelString() {
@@ -59,6 +61,10 @@ public class GitHubActionsAgentTemplate implements Describable<GitHubActionsAgen
         return workflowFileName;
     }
 
+    public int getAgentCap() {
+        return agentCap;
+    }
+
     public boolean matches(Label label) {
         if (label == null) {
             return true;
@@ -68,6 +74,18 @@ public class GitHubActionsAgentTemplate implements Describable<GitHubActionsAgen
         }
         Set<LabelAtom> labelAtoms = Label.parse(labelString);
         return label.matches(labelAtoms);
+    }
+
+    public boolean matches(GitHubActionsAgent agent) {
+        if (labelString == null || labelString.isEmpty()) {
+            return true;
+        }
+        Set<LabelAtom> templateLabels = Label.parse(labelString);
+        Set<LabelAtom> agentLabels = agent.getAssignedLabels().stream()
+                .filter(l -> l instanceof LabelAtom)
+                .map(l -> (LabelAtom) l)
+                .collect(java.util.stream.Collectors.toSet());
+        return agentLabels.containsAll(templateLabels);
     }
 
     @Extension

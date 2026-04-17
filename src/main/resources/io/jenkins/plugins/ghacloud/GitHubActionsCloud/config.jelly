@@ -13,7 +13,7 @@
         </j:when>
         <j:otherwise>
             <f:entry title="${%GitHub API URL}" field="githubApiUrl">
-                <f:textbox readonly="readonly" default="https://api.github.com" />
+                <f:readOnlyTextbox />
             </f:entry>
         </j:otherwise>
     </j:choose>
@@ -27,7 +27,7 @@
     </f:entry>
 
     <f:entry title="${%Max Number of Agents}" field="agentCap">
-        <f:number default="0" clazz="positive-number" />
+        <f:number default="0" min="0" />
     </f:entry>
 
     <f:entry title="${%Agent Templates}">

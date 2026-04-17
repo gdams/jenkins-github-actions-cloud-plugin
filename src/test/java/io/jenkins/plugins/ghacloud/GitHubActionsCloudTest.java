@@ -17,7 +17,7 @@ public class GitHubActionsCloudTest {
     @Test
     public void cloudAppearsInConfiguration() {
         GitHubActionsAgentTemplate template = new GitHubActionsAgentTemplate(
-                "gha-linux", "/home/runner/agent", 1, "main", 5, "jenkins-agent.yml");
+                "gha-linux", "/home/runner/agent", 1, "main", 5, "jenkins-agent.yml", 0);
 
         GitHubActionsCloud cloud = new GitHubActionsCloud(
                 "test-cloud",
@@ -35,7 +35,7 @@ public class GitHubActionsCloudTest {
     @Test
     public void canProvisionMatchingLabel() {
         GitHubActionsAgentTemplate template = new GitHubActionsAgentTemplate(
-                "gha-linux", "/home/runner/agent", 1, "main", 5, "jenkins-agent.yml");
+                "gha-linux", "/home/runner/agent", 1, "main", 5, "jenkins-agent.yml", 0);
 
         GitHubActionsCloud cloud = new GitHubActionsCloud(
                 "test-cloud",
@@ -54,7 +54,7 @@ public class GitHubActionsCloudTest {
     @Test
     public void cannotProvisionNonMatchingLabel() {
         GitHubActionsAgentTemplate template = new GitHubActionsAgentTemplate(
-                "gha-linux", "/home/runner/agent", 1, "main", 5, "jenkins-agent.yml");
+                "gha-linux", "/home/runner/agent", 1, "main", 5, "jenkins-agent.yml", 0);
 
         GitHubActionsCloud cloud = new GitHubActionsCloud(
                 "test-cloud",
@@ -73,7 +73,7 @@ public class GitHubActionsCloudTest {
     @Test
     public void templateMatchesLabel() {
         GitHubActionsAgentTemplate template = new GitHubActionsAgentTemplate(
-                "gha-linux docker", "/home/runner/agent", 1, "main", 5, "jenkins-agent.yml");
+                "gha-linux docker", "/home/runner/agent", 1, "main", 5, "jenkins-agent.yml", 0);
 
         assertTrue(template.matches(Label.get("gha-linux")));
         assertTrue(template.matches(Label.get("docker")));
@@ -83,7 +83,7 @@ public class GitHubActionsCloudTest {
     @Test
     public void templateDefaults() {
         GitHubActionsAgentTemplate template = new GitHubActionsAgentTemplate(
-                "test", null, 0, null, 0, "jenkins-agent.yml");
+                "test", null, 0, null, 0, "jenkins-agent.yml", 0);
 
         assertEquals("/home/runner/agent", template.getRemoteFs());
         assertEquals(1, template.getNumExecutors());
