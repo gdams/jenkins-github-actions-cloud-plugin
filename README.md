@@ -95,17 +95,17 @@ jobs:
 ### 3. Configure the cloud
 
 1. Go to **Manage Jenkins → Clouds → New cloud**
-2. Select **GitHub Actions Cloud**
+2. Select **GitHub Actions**
 3. Fill in:
    - **Cloud Name**: e.g., `github-actions`
    - **Repository**: `owner/repo` (the repo containing the workflow)
    - **Credentials**: select the PAT credential
-   - **Workflow File Name**: `jenkins-agent.yml` (default for all templates)
+   - **Max Number of Agents**: limit concurrent agents (0 = unlimited)
 4. Add one or more **Agent Templates**:
    - **Labels**: e.g., `gha-linux`
    - **Remote FS Root**: `/home/runner/agent`
+   - **Workflow File Name**: e.g., `jenkins-agent.yml`
    - **Idle Termination Minutes**: how long after a build to keep the agent alive
-   - **Workflow File Name** (optional): override per template, e.g., `jenkins-agent-windows.yml`
 
 ### 4. Create a job
 
@@ -118,10 +118,10 @@ Create a Jenkins job with the **Restrict where this project can be run** option 
 | Field | Description |
 |-------|-------------|
 | Cloud Name | Unique identifier for this cloud |
-| GitHub API URL | API endpoint (default: `https://api.github.com`) |
+| GitHub API URL | API endpoint (default: `https://api.github.com`). When the GitHub plugin is installed with enterprise servers configured, a dropdown is shown. |
 | Repository | GitHub repository in `owner/repo` format |
 | Credentials | Secret Text credential containing a GitHub PAT |
-| Workflow File Name | Default workflow file for all templates |
+| Max Number of Agents | Maximum concurrent agents from this cloud (0 = unlimited) |
 
 ### Agent template settings
 
@@ -132,7 +132,7 @@ Create a Jenkins job with the **Restrict where this project can be run** option 
 | Number of Executors | Executors per agent (default: 1) |
 | Git Ref | Branch/tag to run the workflow against (default: `main`) |
 | Idle Termination Minutes | Minutes idle before termination |
-| Workflow File Name | Override the cloud-level workflow file |
+| Workflow File Name | Workflow file to trigger (e.g., `jenkins-agent.yml`) |
 
 ## Development
 
