@@ -138,10 +138,10 @@ Create a Jenkins job with the **Restrict where this project can be run** option 
 
 ```bash
 # Build
-JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn verify
+mvn verify
 
 # Run locally with Jenkins
-JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn hpi:run
+mvn hpi:run
 ```
 
 ## License
