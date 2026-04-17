@@ -36,7 +36,7 @@ public class GitHubActionsCloud extends Cloud {
 
     private static final Logger LOGGER = Logger.getLogger(GitHubActionsCloud.class.getName());
 
-    private String githubApiUrl = "https://api.github.com";
+    private String gitHubApiUrl = "https://api.github.com";
     private final String repository;
     private final String credentialsId;
     private int maxAgents;
@@ -52,14 +52,14 @@ public class GitHubActionsCloud extends Cloud {
         this.templates = templates != null ? new ArrayList<>(templates) : new ArrayList<>();
     }
 
-    public String getGithubApiUrl() {
-        return githubApiUrl;
+    public String getGitHubApiUrl() {
+        return gitHubApiUrl;
     }
 
     @DataBoundSetter
-    public void setGithubApiUrl(String githubApiUrl) {
-        this.githubApiUrl = (githubApiUrl != null && !githubApiUrl.isEmpty())
-                ? githubApiUrl : "https://api.github.com";
+    public void setGitHubApiUrl(String gitHubApiUrl) {
+        this.gitHubApiUrl = (gitHubApiUrl != null && !gitHubApiUrl.isEmpty())
+                ? gitHubApiUrl : "https://api.github.com";
     }
 
     public String getRepository() {
@@ -200,7 +200,7 @@ public class GitHubActionsCloud extends Cloud {
 
         // Trigger the GitHub Actions workflow
         String token = resolveGitHubToken();
-        GitHubClient client = new GitHubClient(githubApiUrl, token);
+        GitHubClient client = new GitHubClient(gitHubApiUrl, token);
 
         Map<String, String> inputs = new HashMap<>();
         inputs.put("jenkins_url", jenkinsUrl);
@@ -259,7 +259,7 @@ public class GitHubActionsCloud extends Cloud {
         }
 
         @RequirePOST
-        public ListBoxModel doFillGithubApiUrlItems(@QueryParameter String githubApiUrl) {
+        public ListBoxModel doFillGitHubApiUrlItems(@QueryParameter String gitHubApiUrl) {
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             ListBoxModel model = new ListBoxModel();
             model.add("GitHub (https://api.github.com)", "https://api.github.com");
