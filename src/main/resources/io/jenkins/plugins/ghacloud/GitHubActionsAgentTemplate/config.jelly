@@ -22,7 +22,7 @@
     </f:entry>
 
     <f:entry title="${%Workflow File Name}" field="workflowFileName">
-        <f:textbox placeholder="jenkins-agent-windows.yml" />
+        <f:textbox clazz="required" placeholder="jenkins-agent.yml" />
     </f:entry>
 
     <f:entry>

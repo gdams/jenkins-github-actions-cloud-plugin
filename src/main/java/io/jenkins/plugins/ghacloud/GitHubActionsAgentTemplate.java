@@ -86,5 +86,14 @@ public class GitHubActionsAgentTemplate implements Describable<GitHubActionsAgen
             }
             return FormValidation.ok();
         }
+
+        @RequirePOST
+        public FormValidation doCheckWorkflowFileName(@QueryParameter String value) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+            if (value == null || value.trim().isEmpty()) {
+                return FormValidation.error("Workflow file name is required (e.g. jenkins-agent.yml)");
+            }
+            return FormValidation.ok();
+        }
     }
 }

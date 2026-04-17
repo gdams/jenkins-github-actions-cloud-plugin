@@ -5,9 +5,18 @@
         <f:textbox />
     </f:entry>
 
-    <f:entry title="${%GitHub API URL}" field="githubApiUrl">
-        <f:textbox default="https://api.github.com" />
-    </f:entry>
+    <j:choose>
+        <j:when test="${descriptor.apiUriSelectable}">
+            <f:entry title="${%GitHub API URL}" field="githubApiUrl">
+                <f:select />
+            </f:entry>
+        </j:when>
+        <j:otherwise>
+            <f:entry title="${%GitHub API URL}" field="githubApiUrl">
+                <f:textbox readonly="readonly" default="https://api.github.com" />
+            </f:entry>
+        </j:otherwise>
+    </j:choose>
 
     <f:entry title="${%Repository}" field="repository">
         <f:textbox placeholder="owner/repo" />
@@ -17,8 +26,8 @@
         <c:select />
     </f:entry>
 
-    <f:entry title="${%Workflow File Name}" field="workflowFileName">
-        <f:textbox placeholder="jenkins-agent.yml" />
+    <f:entry title="${%Max Number of Agents}" field="agentCap">
+        <f:number default="0" clazz="positive-number" />
     </f:entry>
 
     <f:entry title="${%Agent Templates}">

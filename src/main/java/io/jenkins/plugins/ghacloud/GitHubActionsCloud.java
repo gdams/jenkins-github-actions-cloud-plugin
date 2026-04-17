@@ -38,19 +38,19 @@ public class GitHubActionsCloud extends Cloud {
     private final String githubApiUrl;
     private final String repository;
     private final String credentialsId;
-    private final String workflowFileName;
+    private final int agentCap;
     private final List<GitHubActionsAgentTemplate> templates;
 
     @DataBoundConstructor
     public GitHubActionsCloud(String name, String githubApiUrl, String repository,
-                              String credentialsId, String workflowFileName,
+                              String credentialsId, int agentCap,
                               List<GitHubActionsAgentTemplate> templates) {
         super(name);
         this.githubApiUrl = (githubApiUrl != null && !githubApiUrl.isEmpty())
                 ? githubApiUrl : "https://api.github.com";
         this.repository = repository;
         this.credentialsId = credentialsId;
-        this.workflowFileName = workflowFileName;
+        this.agentCap = agentCap;
         this.templates = templates != null ? new ArrayList<>(templates) : new ArrayList<>();
     }
 
@@ -66,8 +66,8 @@ public class GitHubActionsCloud extends Cloud {
         return credentialsId;
     }
 
-    public String getWorkflowFileName() {
-        return workflowFileName;
+    public int getAgentCap() {
+        return agentCap;
     }
 
     public List<GitHubActionsAgentTemplate> getTemplates() {
@@ -85,12 +85,14 @@ public class GitHubActionsCloud extends Cloud {
         Label label = state.getLabel();
         List<NodeProvisioner.PlannedNode> plannedNodes = new ArrayList<>();
 
-        // Count already-provisioned agents from this cloud that haven't connected yet
+        // Count agents from this cloud
         int pendingCount = 0;
+        int totalCount = 0;
         for (Node node : Jenkins.get().getNodes()) {
             if (node instanceof GitHubActionsSlave) {
                 GitHubActionsSlave slave = (GitHubActionsSlave) node;
                 if (name.equals(slave.getCloudName())) {
+                    totalCount++;
                     hudson.model.Computer computer = slave.toComputer();
                     if (computer == null || computer.isOffline()) {
                         pendingCount++;
@@ -99,9 +101,16 @@ public class GitHubActionsCloud extends Cloud {
             }
         }
 
+        if (agentCap > 0 && totalCount >= agentCap) {
+            LOGGER.log(Level.FINE,
+                    "Agent cap ({0}) reached for cloud {1}, skipping provisioning",
+                    new Object[]{agentCap, name});
+            return plannedNodes;
+        }
+
         int toProvision = Math.max(0, excessWorkload - pendingCount);
         if (toProvision == 0) {
-            LOGGER.log(Level.INFO,
+            LOGGER.log(Level.FINE,
                     "Skipping provisioning: {0} agents already pending for cloud {1}",
                     new Object[]{pendingCount, name});
             return plannedNodes;
@@ -174,13 +183,9 @@ public class GitHubActionsCloud extends Cloud {
         inputs.put("agent_name", agentName);
         inputs.put("agent_secret", secret);
 
-        // Use template-level workflow file if set, otherwise fall back to cloud-level
-        String workflow = (template.getWorkflowFileName() != null && !template.getWorkflowFileName().isEmpty())
-                ? template.getWorkflowFileName() : workflowFileName;
-
-        client.triggerWorkflow(repository, workflow, template.getGitRef(), inputs);
-        LOGGER.log(Level.INFO, "Triggered GitHub Actions workflow {0} for agent: {1}",
-                new Object[]{workflow, agentName});
+        client.triggerWorkflow(repository, template.getWorkflowFileName(), template.getGitRef(), inputs);
+        LOGGER.log(Level.FINE, "Triggered GitHub Actions workflow {0} for agent: {1}",
+                new Object[]{template.getWorkflowFileName(), agentName});
 
         return slave;
     }
@@ -205,7 +210,7 @@ public class GitHubActionsCloud extends Cloud {
 
         @Override
         public String getDisplayName() {
-            return "GitHub Actions Cloud";
+            return "GitHub Actions";
         }
 
         @RequirePOST
@@ -230,12 +235,19 @@ public class GitHubActionsCloud extends Cloud {
         }
 
         @RequirePOST
-        public FormValidation doCheckWorkflowFileName(@QueryParameter String value) {
+        public ListBoxModel doFillGithubApiUrlItems(@QueryParameter String githubApiUrl) {
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-            if (value == null || value.trim().isEmpty()) {
-                return FormValidation.error("Workflow file name is required (e.g. jenkins-agent.yml)");
+            ListBoxModel model = new ListBoxModel();
+            model.add("GitHub", "https://api.github.com");
+            if (Jenkins.get().getPlugin("github") != null) {
+                GitHubEnterpriseHelper.addServers(model);
             }
-            return FormValidation.ok();
+            return model;
+        }
+
+        public boolean isApiUriSelectable() {
+            return Jenkins.get().getPlugin("github") != null
+                    && GitHubEnterpriseHelper.hasEnterpriseServers();
         }
 
         @RequirePOST
