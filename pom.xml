@@ -16,7 +16,7 @@
     <version>${changelist}</version>
     <packaging>hpi</packaging>
 
-    <name>GitHub Actions</name>
+    <name>GitHub Actions Cloud Agents</name>
     <description>Dynamically provisions Jenkins agents as GitHub Actions workflow runs</description>
     <url>https://github.com/jenkinsci/github-actions-cloud-plugin</url>
 
