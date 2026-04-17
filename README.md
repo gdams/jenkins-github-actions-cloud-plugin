@@ -84,7 +84,7 @@ jobs:
             -noReconnect
 ```
 
-**Windows** (`jenkins-agent-windows.yml`): use `runs-on: windows-latest` and PowerShell syntax — see the [sample workflow](sample-workflow/).
+**Windows** (`jenkins-agent-windows.yml`): use `runs-on: windows-latest` and PowerShell syntax — see the [sample workflows](sample-workflows/).
 
 ### 2. Add a GitHub PAT credential in Jenkins
 

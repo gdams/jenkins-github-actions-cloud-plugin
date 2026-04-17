@@ -1,15 +1,16 @@
 # ---------------------------------------------------------------
 # Sample GitHub Actions workflow for Jenkins agent provisioning
+# (macOS)
 # ---------------------------------------------------------------
 # Place this file in your GitHub repository at:
-#   .github/workflows/jenkins-agent.yml
+#   .github/workflows/jenkins-agent-macos.yml
 #
 # The GitHub Actions Cloud plugin triggers this workflow via
 # workflow_dispatch, passing the Jenkins URL, agent name, and
 # agent secret as inputs.
 # ---------------------------------------------------------------
 
-name: Jenkins Agent
+name: Jenkins Agent (macOS)
 
 on:
   workflow_dispatch:
@@ -26,7 +27,7 @@ on:
 
 jobs:
   agent:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     timeout-minutes: 360   # max 6 hours, adjust as needed
 
     steps:
@@ -46,6 +47,6 @@ jobs:
             -url "${{ inputs.jenkins_url }}" \
             -secret "$AGENT_SECRET" \
             -name "${{ inputs.agent_name }}" \
-            -workDir "/home/runner/agent" \
+            -workDir "/Users/runner/agent" \
             -webSocket \
             -noReconnect
