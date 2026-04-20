@@ -15,6 +15,7 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.cloudstats.ProvisioningActivity;
+import org.jenkinsci.plugins.cloudstats.TrackedPlannedNode;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -168,7 +169,7 @@ public class GitHubActionsCloud extends Cloud {
                 }
             });
 
-            plannedNodes.add(new NodeProvisioner.PlannedNode(agentName, future, template.getNumExecutors()));
+            plannedNodes.add(new TrackedPlannedNode(provisioningId, template.getNumExecutors(), future));
         }
 
         return plannedNodes;
@@ -214,9 +215,15 @@ public class GitHubActionsCloud extends Cloud {
         inputs.put("agent_name", agentName);
         inputs.put("agent_secret", secret);
 
-        client.triggerWorkflow(repository, template.getWorkflowFileName(), template.getGitRef(), inputs);
-        LOGGER.log(Level.FINE, "Triggered GitHub Actions workflow {0} for agent: {1}",
-                new Object[]{template.getWorkflowFileName(), agentName});
+        GitHubClient.DispatchResult dispatch = client.triggerWorkflow(
+                repository, template.getWorkflowFileName(), template.getGitRef(), inputs);
+        agent.setWorkflowRunId(dispatch.getRunId());
+        agent.setWorkflowRunUrl(dispatch.getHtmlUrl());
+        agent.setNodeDescription(dispatch.getHtmlUrl() != null
+                ? "GitHub Actions run: " + dispatch.getHtmlUrl()
+                : "GitHub Actions agent");
+        LOGGER.log(Level.FINE, "Triggered GitHub Actions workflow {0} for agent {1} (run ID: {2})",
+                new Object[]{template.getWorkflowFileName(), agentName, dispatch.getRunId()});
 
         return agent;
     }
