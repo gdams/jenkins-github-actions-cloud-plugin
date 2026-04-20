@@ -1,6 +1,7 @@
 # GitHub Actions Cloud Plugin for Jenkins
 
 [![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/github-actions-cloud)](https://plugins.jenkins.io/github-actions-cloud/)
+[![Jenkins](https://ci.jenkins.io/buildStatus/icon?job=Plugins%2Fgithub-actions-cloud-plugin%2Fmain)](https://ci.jenkins.io/job/Plugins/job/github-actions-cloud-plugin/job/main/)
 
 Dynamically provisions Jenkins agents as GitHub Actions workflow runs.
 
